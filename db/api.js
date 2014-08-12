@@ -49,20 +49,6 @@ exports.createYarn = function(req, res) {
 };
 
 exports.addPhoto = function(req, res) {
-        
-    // Yarn.findOne({_id: req.body.yarnId}, function(err, yarn) {
-    //     yarn.links.push(req.body.link);
-    //     yarn.lastUpdated = Date.now();
-    //     yarn.save(function(err, yarn, num) {
-
-    //         // client-side is not sending a creator id atm
-    //         User.findOne({ id: req.body.creatorId }, function(err, user) {
-    //             user.yarnIds.push(yarn._id);
-    //         });
-
-    //         callback(err, yarn, num);
-    //     });
-    // });
 
     Yarn.findOne({_id: req.body.yarnId}, function(err, yarn) {
         if (err) {
@@ -111,17 +97,19 @@ exports.getAllYarns = function(req, res) {
         }
     });
 
-    // return Yarn.find({})
-    //         .sort('-lastUpdated')
-    //         .exec(function(err, yarns) {
-    //             if (err) {
-    //                 res.send(err);
-    //             } else {
-    //                 res.send(yarns)
-    //             }
-    //         })
-
 };
+
+exports.getYarnsBrowser = function(req, res) {
+    return Yarn.find({})
+            .sort('-lastUpdated')
+            .exec(function(err, yarns) {
+                if (err) {
+                    res.send({err: err, msg: 'yarns could not be found'});
+                } else {
+                    res.send(yarns);
+                }
+            });
+}
 
 exports.removeAllPhotos = function() {
     Photo.remove({}, function(err) {
