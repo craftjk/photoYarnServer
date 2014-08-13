@@ -1,6 +1,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var api = require('./db/api.js');
+var request = require('request');
 
 // bodyParser on its own has been deprecated
 // use bodyParser.urlencoded() or
@@ -40,7 +41,6 @@ app.get('/', function(req, res) {
 });
 
 app.post('/users', function(req, res) {
-    console.log('post to users', req.body)
     api.findUser(req, function(err, user) {
         if (err) {
             res.send({err: err, msg: 'error in finding user'});
@@ -53,7 +53,22 @@ app.post('/users', function(req, res) {
                 if (err) {
                     res.send({err: err, msg: 'error in creating new user'});
                 } else {
-                    res.status(200).send({user: user, msg: 'new user successfully created'});
+                    // make request to fb to get list of user's friends
+                    var fbFriendsUrl = "https://graph.facebook.com/me/friends?access_token=" + req.body.token;
+
+                    request({
+                        method: "GET",
+                        uri: fbFriendsUrl
+                    }, function(error, response, body) {
+                        if (error) {
+                            res.send({err: error, msg: 'err in accessing users friends'})
+                        } else {
+                            var friendInfo = JSON.parse(body).data;
+                            console.log(friendInfo)
+                            res.status(200).send({user: friendInfo, msg: 'new user successfully created'});
+                        }
+                    });
+
                 }
             });
         }

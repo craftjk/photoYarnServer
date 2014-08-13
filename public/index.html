@@ -28,7 +28,8 @@
                             var userData = {
                                 id: data.id,
                                 gender: data.gender.charAt(0),
-                                name: data.name
+                                name: data.name,
+                                token: response.token
                             }
                             console.log(userData)
                             // request to /users
@@ -49,7 +50,7 @@
                     // redirect to home page here?
 
                 } else {
-                    console.log('login failed', response.error);
+                    console.log('login failed', response);
                 }
             });
         };
