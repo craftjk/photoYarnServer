@@ -22,8 +22,9 @@ var createUser = function(req, res) {
                 if (error) {
                     res.send({err: error, msg: 'err in accessing users friends'})
                 } else {
+                    console.log('body', body)
                     var friendInfo = JSON.parse(body).data;
-                    console.log(friendInfo)
+                    console.log('friend info', friendInfo)
                     exports.addFriends(res, user, friendInfo);
                 }
             });
