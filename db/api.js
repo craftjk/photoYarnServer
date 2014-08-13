@@ -1,20 +1,60 @@
 var Yarn = require('./models/yarn.js');
 var User = require('./models/user.js');
 var Photo = require('./models/photo.js');
+var request = require('request');
 
-exports.createUser = function(req, callback) {
+var createUser = function(req, res) {
     new User({
         name: req.body.name,
         id: req.body.id,
         yarnIds: []
     }).save(function(err, user, numAffected) {
-        callback(err, user);
+        if (err) {
+            res.send({err: err, msg: 'error in creating new user'});
+        } else {
+            // make request to fb to get list of user's friends
+            var fbFriendsUrl = "https://graph.facebook.com/me/friends?access_token=" + req.body.token;
+
+            request({
+                method: "GET",
+                uri: fbFriendsUrl
+            }, function(error, response, body) {
+                if (error) {
+                    res.send({err: error, msg: 'err in accessing users friends'})
+                } else {
+                    var friendInfo = JSON.parse(body).data;
+                    console.log(friendInfo)
+                    exports.addFriends(res, user, friendInfo);
+                }
+            });
+        }
     });
 };
 
-exports.findUser = function(req, callback) {
+exports.loginUser = function(req, res) {
     User.findOne({ id: req.body.id }, function(err, user) {
-        callback(err, user);
+        if (err) {
+            res.send({err: err, msg: 'error in finding user'});
+        } else if (user) {
+            // probably have to query db to find and
+            // send all relevant user data at this point
+            res.status(200).send({user: user, msg: 'user already exists'});
+        } else {
+            createUser(req, res);
+        }
+    });
+};
+
+exports.addFriends = function(res, user, friends) {
+    for (var i = 0; i < friends.length; i++) {
+        user.friends.push(friends[i]);
+    }
+    user.save(function(err, user, numAffected) {
+        if (err) {
+            res.send({err: err, msg: 'error in adding friends'})
+        } else {
+            res.status(200).send({user: user, msg: 'new user successfully created with friends'});
+        }
     });
 };
 

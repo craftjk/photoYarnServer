@@ -41,38 +41,7 @@ app.get('/', function(req, res) {
 });
 
 app.post('/users', function(req, res) {
-    api.findUser(req, function(err, user) {
-        if (err) {
-            res.send({err: err, msg: 'error in finding user'});
-        } else if (user) {
-            // probably have to query db to find and
-            // send all relevant user data at this point
-            res.status(200).send({user: user, msg: 'user already exists'});
-        } else {
-            api.createUser(req, function(err, user, numAffected) {
-                if (err) {
-                    res.send({err: err, msg: 'error in creating new user'});
-                } else {
-                    // make request to fb to get list of user's friends
-                    var fbFriendsUrl = "https://graph.facebook.com/me/friends?access_token=" + req.body.token;
-
-                    request({
-                        method: "GET",
-                        uri: fbFriendsUrl
-                    }, function(error, response, body) {
-                        if (error) {
-                            res.send({err: error, msg: 'err in accessing users friends'})
-                        } else {
-                            var friendInfo = JSON.parse(body).data;
-                            console.log(friendInfo)
-                            res.status(200).send({user: friendInfo, msg: 'new user successfully created'});
-                        }
-                    });
-
-                }
-            });
-        }
-    });
+    api.loginUser(req, res);
 });
 
 
@@ -103,14 +72,6 @@ app.post('/createNewYarn', function(req, res) {
 // client will call this, providing a yarn id
 // in order to add a photo to a specific yarn
 app.post('/addToYarn', function(req, res) {
-
-    // api.addPhoto(req, function(err, yarn, num) {
-    //     if (err) {
-    //         res.send(err);
-    //     } else {
-    //         res.status(200).send(yarn);
-    //     }
-    // });
 
     api.addPhoto(req, res);
     
