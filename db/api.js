@@ -157,8 +157,8 @@ exports.getAllYarns = function(req, res) {
 var getYarnIds = function(user, friends) {
     var yarnIdsObj = {};
     for (var i = 0; i < friends.length; i++) {
-        for (var j = 0; j < friend[i].yarnIds.length; j++) {
-            var friendYarnId = friend[i].yarnIds[j];
+        for (var j = 0; j < friends[i].yarnIds.length; j++) {
+            var friendYarnId = friends[i].yarnIds[j];
             yarnIdsObj[friendYarnId] = true;
         }
     }
