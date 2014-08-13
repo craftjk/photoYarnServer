@@ -31,6 +31,7 @@ var createUser = function(req, res) {
     });
 };
 
+
 exports.loginUser = function(req, res) {
     User.findOne({ id: req.body.id }, function(err, user) {
         if (err) {
@@ -47,7 +48,7 @@ exports.loginUser = function(req, res) {
 
 exports.addFriends = function(res, user, friends) {
     for (var i = 0; i < friends.length; i++) {
-        user.friends.push(friends[i]);
+        user.friendIds.push(friends[i].id);
     }
     user.save(function(err, user, numAffected) {
         if (err) {
@@ -125,19 +126,48 @@ exports.getAllYarns = function(req, res) {
         if (err) {
             res.send({err: err, msg: 'user not found'});
         } else {
-            return Yarn.find({ _id: { $in: user.yarnIds } })
-                    .sort('-lastUpdated')
-                    .exec(function(err, yarns) {
-                        if (err) {
-                            res.send({err: err, msg: 'yarns could not be found'});
-                        } else {
-                            res.send(yarns);
-                        }
-                    });
+
+            console.log(user)
+            // find all friends' yarn ids
+            User.find({ id: { $in: user.friendIds } }, function(err, friends) {
+                if (err) {
+                    res.send({err: err, msg: 'error in finding friends'});
+                } else {
+                    
+                    var yarnIds = getYarnIds(user, friends);
+
+                    return Yarn.find({ _id: { $in: yarnIds } })
+                            .sort('-lastUpdated')
+                            .exec(function(err, yarns) {
+                                if (err) {
+                                    res.send({err: err, msg: 'yarns could not be found'});
+                                } else {
+                                    res.send(yarns);
+                                }
+                            });
+                }
+            });
+
         }
     });
-
 };
+
+var getYarnIds = function(user, friends) {
+    var yarnIdsObj = {};
+    for (var i = 0; i < friends.length; i++) {
+        for (var j = 0; j < friend[i].yarnIds.length; j++) {
+            var friendYarnId = friend[i].yarnIds[j];
+            yarnIdsObj[friendYarnId] = true;
+        }
+    }
+
+    for (var i = 0; i < user.yarnIds.length; i++) {
+        yarnIdsObj[user.yarnIds[i]] = true;
+    }
+
+    return Object.keys(yarnIdsObj);
+};
+
 
 exports.getYarnsBrowser = function(req, res) {
     return Yarn.find({})

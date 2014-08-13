@@ -1,7 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var api = require('./db/api.js');
-var request = require('request');
 
 // bodyParser on its own has been deprecated
 // use bodyParser.urlencoded() or

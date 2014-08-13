@@ -5,10 +5,7 @@ var userSchema = new Schema({
     name: String,
     id: Number,
     yarnIds: [String],
-    friends: [{
-        id: Number,
-        name: String
-    }]
+    friendIds: [Number]
     
 });
 
