@@ -13,6 +13,7 @@ var createUser = function(req, res) {
             res.send({err: err, msg: 'error in creating new user'});
         } else {
             // make request to fb to get list of user's friends
+            console.log('access token', req.body.token)
             var fbFriendsUrl = "https://graph.facebook.com/me/friends?access_token=" + req.body.token;
 
             request({
